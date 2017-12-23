@@ -66,7 +66,7 @@ If δ is positive we rotate counter-clockwise, or turn left. In the simulator ho
 
 ###Timestep Length and Elapsed Duration (N & dt) 
 
-Timestep length (N) and elapsed duration between timesteps (dt) were chosen as `10` and `0.1`, respectively, corresponding to a `1,5` seconds horizon.  For each iteration, the server sends 6 waypoints, 10 timesteps is a good match for the number of waypoints. 
+Timestep length (N) and elapsed duration between timesteps (dt) were chosen as `10` and `0.1`, respectively, corresponding to a `1,5` seconds horizon.  Initially, more timesteps (25, 20, 15) were tried. However, it was observed that for each iteration, the server sends 6 waypoints and 10 timesteps is a better match for the number of waypoints. 
 
 
 ###Polynomial Fitting and MPC Preprocessing
