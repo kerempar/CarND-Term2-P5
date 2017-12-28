@@ -64,6 +64,17 @@ If δ is positive we rotate counter-clockwise, or turn left. In the simulator ho
  ψ_{t+1} = ψ_t  - v_t/L_f * δ_t * dt 
 \\]
 
+The following additional coefficients were used in the cost function in `operator` method in MPC implementation, The values were found manually by trial and error to achieve a stable ride.
+
+| Cost component |  Coefficient|
+| ----- | ------- | 
+|  *cross track error (cte)*    |  2500  |  
+|  *orientation error (eψ)*   |  2500  | 
+|  *streering angle*   |  200  | 
+|  *acceleration*   |  5  | 
+|  *change in sequential streering inputs*   |  1000  | 
+
+
 ###Timestep Length and Elapsed Duration (N & dt) 
 
 Timestep length (N) and elapsed duration between timesteps (dt) were chosen as `10` and `0.1`, respectively, corresponding to a `1,5` seconds horizon.  Initially, more timesteps (25, 20, 15) were tried. However, it was observed that for each iteration, the server sends 6 waypoints and 10 timesteps is a better match for the number of waypoints. 
