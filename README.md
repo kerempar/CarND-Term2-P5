@@ -28,16 +28,16 @@ The model consists of 6 state variables
 | ----- | ------- | 
 |  *x*    |  x position  |  
 |  *y*   |  y position  | 
-|  *ψ*   |  orientation  | 
+|  *ψ (psi)*   |  orientation  | 
 |  *v*   |  velocity  | 
 |  *cte*   |  cross track error  | 
-|  *eψ*   |  orientation error  | 
+|  *eψ (epsi)*   |  orientation error  | 
 
 and 2 actuators 
 
 | Actuator  |  Description|
 | ----- | ------- | 
-|  *δ*    |  steering angle  |  
+|  *δ (delta)*    |  steering angle  |  
 |  *a*   |  throttle  | 
 
 Following  equations were used for the next state to implement the Global Kinematic Model.
@@ -58,6 +58,15 @@ Following  equations were used for the next state to implement the Global Kinema
  v_{t+1} = v_t  + v_t * a_t * dt 
 \\]
 
+\\[
+ cte_{t+1} = f(x_t) - y_t  + (v_t * sin(ψ_t) * dt) 
+\\]
+
+\\[
+ eψ_{t+1} = ψ_t  -ψdes_t + (v_t/L_f * δ_t * dt) 
+\\]
+
+
 If δ is positive we rotate counter-clockwise, or turn left. In the simulator however, a positive value implies a right turn and a negative value implies a left turn. To get around this the update equation for ψ was changed to
 
 \\[
@@ -77,7 +86,7 @@ The following additional coefficients were used in the cost function in `operato
 
 ###Timestep Length and Elapsed Duration (N & dt) 
 
-Timestep length (N) and elapsed duration between timesteps (dt) were chosen as `10` and `0.1`, respectively, corresponding to a `1,5` seconds horizon.  Initially, more timesteps (25, 20, 15) were tried. However, it was observed that for each iteration, the server sends 6 waypoints and 10 timesteps is a better match for the number of waypoints. 
+Timestep length (N) and elapsed duration between timesteps (dt) were chosen as `10` and `0.1`, respectively, corresponding to a `1,5` seconds horizon.  Initially, more timesteps (25, 20, 15) were tried. They sometimes caused unstable behavior. However, it was observed that for each iteration, the server sends 6 waypoints and 10 timesteps is a better match for the number of waypoints and resulted a more stable ride. 
 
 
 ###Polynomial Fitting and MPC Preprocessing
@@ -95,7 +104,7 @@ The vehicle was assumed to be in position (0, 0).
 ###Model Predictive Control with Latency
 
 Model Predictive Control has been implemeted to handle a 100 millisecond latency. 
-In order to deal with latency, the state values coming from the server were updated with the predicted values for 100 millisecond before being sent to the MPC block by using the following equations. 
+In order to deal with latency, the state values coming from the server were updated with the predicted values for 100 millisecond before being sent to the MPC block by using the following equations. In other words, a simulation has been run using the vehicle model starting from the current state for the duration of the latency. The resulting state from the simulation was the new initial state for MPC.
 
 \\[
  x_{t+1} = x_t  + v_t * cos(ψ_t) * dt
@@ -106,7 +115,7 @@ In order to deal with latency, the state values coming from the server were upda
 \\]
 	 	 
 \\[
- ψ_{t+1} = ψ_t  + v_t/L_f * δ_t * dt 
+ ψ_{t+1} = ψ_t  - v_t/L_f * δ_t * dt 
 \\]
 
 \\[
@@ -118,12 +127,12 @@ In order to deal with latency, the state values coming from the server were upda
 \\]
 
 \\[
- eψ_{t+1} = eψ_t  + v_t/L_f * δ_t * dt 
+ eψ_{t+1} = eψ_t  - v_t/L_f * δ_t * dt 
 \\]
 
 ## Simulation
 
-After tuning the parameters by several iterations. The vehicle was tested in the simulator. The vehicle successfully drove a lap around the track.
+After tuning the parameters by several iterations. The vehicle was tested in the simulator (The reference velcity was set to `90 mph`). The vehicle successfully drove a lap around the track.
 
 No tire left the drivable portion of the track surface. The car did not pop up onto ledges or roll over any surfaces that would otherwise be considered unsafe (if humans were in the vehicle).
 
